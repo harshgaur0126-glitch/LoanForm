@@ -15,9 +15,10 @@ exports.handler = async (event) => {
 
   try {
     const { action, mobile, otp } = JSON.parse(event.body);
+    const otpNum = parseInt(otp);
 
     if (action === 'send') {
-      const url = `https://api.msg91.com/api/v5/otp?authkey=${AUTH_KEY}&mobile=91${mobile}&otp=${otp}&template_id=${TEMPLATE_ID}&sender=${SENDER_ID}&otp_length=6&otp_expiry=10`;
+      const url = `https://api.msg91.com/api/v5/otp?authkey=${AUTH_KEY}&mobile=91${mobile}&otp=${otpNum}&template_id=${TEMPLATE_ID}&sender=${SENDER_ID}&otp_length=6&otp_expiry=10`;
       const res = await fetch(url, { method: 'GET', headers: { 'accept': 'application/json' } });
       const text = await res.text();
       console.log('send:', text);
@@ -25,7 +26,7 @@ exports.handler = async (event) => {
     }
 
     if (action === 'verify') {
-      const url = `https://api.msg91.com/api/v5/otp/verify?authkey=${AUTH_KEY}&mobile=91${mobile}&otp=${otp}`;
+      const url = `https://api.msg91.com/api/v5/otp/verify?authkey=${AUTH_KEY}&mobile=91${mobile}&otp=${otpNum}`;
       const res = await fetch(url, { method: 'GET', headers: { 'accept': 'application/json' } });
       const text = await res.text();
       console.log('verify:', text);
@@ -38,4 +39,3 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
   }
 };
-
