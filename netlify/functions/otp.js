@@ -9,41 +9,27 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method not allowed' };
 
-  const WIDGET_ID  = '366579686b51333133303739';
-  const TOKEN_AUTH = '519523Tn9qtE5V6a14054eP1';
+  const AUTH_KEY    = '519523AGf881ttNq6a1406deP1';
+  const TEMPLATE_ID = '6a15794bdfaa3c7afb0b2413';
+  const SENDER_ID   = 'smsind';
 
   try {
     const { action, mobile, otp } = JSON.parse(event.body);
 
     if (action === 'send') {
-      const res = await fetch('https://control.msg91.com/api/v5/widget/sendOtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          identifier: `91${mobile}`,
-          widget_id: WIDGET_ID,
-          tokenAuth: TOKEN_AUTH
-        })
-      });
-      const data = await res.json();
-      console.log('send response:', JSON.stringify(data));
-      return { statusCode: 200, headers, body: JSON.stringify(data) };
+      const url = `https://api.msg91.com/api/v5/otp?authkey=${AUTH_KEY}&mobile=91${mobile}&otp=${otp}&template_id=${TEMPLATE_ID}&sender=${SENDER_ID}&otp_length=6&otp_expiry=10`;
+      const res = await fetch(url, { method: 'GET', headers: { 'accept': 'application/json' } });
+      const text = await res.text();
+      console.log('send:', text);
+      return { statusCode: 200, headers, body: text };
     }
 
     if (action === 'verify') {
-      const res = await fetch('https://control.msg91.com/api/v5/widget/verifyOtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          identifier: `91${mobile}`,
-          widget_id: WIDGET_ID,
-          tokenAuth: TOKEN_AUTH,
-          otp: otp
-        })
-      });
-      const data = await res.json();
-      console.log('verify response:', JSON.stringify(data));
-      return { statusCode: 200, headers, body: JSON.stringify(data) };
+      const url = `https://api.msg91.com/api/v5/otp/verify?authkey=${AUTH_KEY}&mobile=91${mobile}&otp=${otp}`;
+      const res = await fetch(url, { method: 'GET', headers: { 'accept': 'application/json' } });
+      const text = await res.text();
+      console.log('verify:', text);
+      return { statusCode: 200, headers, body: text };
     }
 
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid action' }) };
@@ -52,3 +38,4 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
   }
 };
+
