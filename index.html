@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Registration Form</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .wrap { background: #fff; border-radius: 16px; padding: 2rem 1.5rem; width: 100%; max-width: 460px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+  h1 { font-size: 18px; font-weight: 600; color: #111; margin-bottom: 0.25rem; }
+  .sub { font-size: 13px; color: #888; margin-bottom: 1.5rem; }
+  label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
+  input, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; color: #111; outline: none; transition: border 0.2s; }
+  input:focus, select:focus { border-color: #1D9E75; }
+  input[readonly] { background: #f9f9f9; color: #888; }
+  .field { margin-bottom: 1rem; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; }
+  button { padding: 10px 16px; background: #1D9E75; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+  button:hover { background: #0F6E56; }
+  button:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-full { width: 100%; }
+  .btn-outline { background: transparent; color: #1D9E75; border: 1px solid #1D9E75; }
+  .info-box { background: #e8f8f3; border: 1px solid #9FE1CB; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #0F6E56; margin-bottom: 8px; }
+  .err { font-size: 13px; color: #c0392b; margin-top: 6px; display: none; }
+  .progress { display: flex; align-items: center; gap: 4px; margin-bottom: 1.5rem; }
+  .dot { height: 6px; border-radius: 3px; background: #ddd; transition: all 0.3s; }
+  .step-label { font-size: 12px; color: #888; margin-left: 8px; }
+  .success-icon { width: 60px; height: 60px; border-radius: 50%; background: #e8f8f3; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 28px; }
+  .summary { background: #f9f9f9; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+  .sum-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #eee; }
+  .sum-row:last-child { border-bottom: none; }
+  .sum-label { color: #888; }
+  .sum-val { font-weight: 600; color: #111; }
+  .hidden { display: none; }
+  #step2, #success-screen { display: none; }
+  .sending { font-size: 13px; color: #1D9E75; margin-top: 6px; display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="progress">
+    <div class="dot" id="dot-1"></div>
+    <div class="dot" id="dot-2"></div>
+    <div class="dot" id="dot-3"></div>
+    <span class="step-label" id="step-label"></span>
+  </div>
+
+  <div id="step1">
+    <h1>Basic details</h1>
+    <p class="sub">We'll send an OTP to verify your mobile number</p>
+    <div class="field">
+      <label>Full name</label>
+      <input id="name" type="text" placeholder="Enter your full name">
+    </div>
+    <div class="field">
+      <label>Mobile number</label>
+      <div class="row">
+        <input id="mobile" type="tel" placeholder="10-digit mobile number" maxlength="10">
+        <button id="btn-otp1" onclick="sendOTP1()">Send OTP</button>
+      </div>
+      <p class="sending" id="sending1">⏳ Sending OTP...</p>
+    </div>
+    <div id="otp1-box" class="hidden">
+      <div class="info-box">✅ OTP sent to +91<span id="mob-show"></span></div>
+      <div class="field">
+        <label>Enter OTP</label>
+        <div class="row">
+          <input id="otp1-in" type="text" maxlength="6" placeholder="6-digit OTP" style="letter-spacing:6px;text-align:center;font-weight:600;">
+          <button id="btn-verify1" onclick="verifyOTP1()">Verify & next</button>
+        </div>
+      </div>
+    </div>
+    <p class="err" id="err1"></p>
+  </div>
+
+  <div id="step2">
+    <h1>Loan details</h1>
+    <p class="sub">Tell us what you're looking for</p>
+    <div class="field">
+      <label>Mobile number</label>
+      <input id="mob-fill" type="tel" readonly>
+    </div>
+    <div class="field">
+      <label>Product type</label>
+      <select id="product" onchange="onProduct()">
+        <option value="">— Select product type —</option>
+        <option value="home_loan">Home Loan</option>
+        <option value="lap">Loan Against Property</option>
+        <option value="business_loan">Business Loan</option>
+        <option value="education_loan">Education Loan</option>
+        <option value="od_limit">OD Limit</option>
+        <option value="cc_limit">CC Limit</option>
+        <option value="new_car">New Car Loan</option>
+        <option value="used_car">Used Car Loan</option>
+      </select>
+    </div>
+    <div id="sub-wrap" class="hidden"></div>
+    <div class="field">
+      <label>Required loan amount (₹)</label>
+      <input id="amount" type="number" placeholder="e.g. 2500000" min="0">
+    </div>
+    <div class="field">
+      <label>OTP verification</label>
+      <div class="row" style="margin-bottom:8px;">
+        <input id="otp2-in" type="text" maxlength="6" placeholder="Enter OTP" style="letter-spacing:6px;text-align:center;font-weight:600;">
+        <button id="btn-otp2" onclick="sendOTP2()">Send OTP</button>
+      </div>
+      <p class="sending" id="sending2">⏳ Sending OTP...</p>
+      <div id="otp2-box" class="info-box hidden">✅ OTP sent to your mobile number</div>
+    </div>
+    <p class="err" id="err2"></p>
+    <button class="btn-full" onclick="doSubmit()">✓ Submit application</button>
+  </div>
+
+  <div id="success-screen" style="text-align:center;padding:1rem 0;">
+    <div class="success-icon">✓</div>
+    <h1 style="margin-bottom:0.5rem;">Application submitted!</h1>
+    <p class="sub" style="margin-bottom:1rem;">Our team will reach out to you shortly.</p>
+    <div class="summary" id="summary"></div>
+    <button class="btn-outline" onclick="resetForm()" style="margin-top:1rem;font-size:13px;">New application</button>
+  </div>
+</div>
+
+<script>
+let uName, uMob;
+const sub = {
+  home_loan:{label:'Property status',opts:['Under construction','Ready to move','Plot purchase','Resale property']},
+  lap:{label:'Property type',opts:['Residential','Commercial','Industrial','Agricultural']},
+  business_loan:{label:'Business type',opts:['Sole proprietorship','Partnership','Pvt Ltd','LLP']},
+  education_loan:{label:'Course level',opts:['Undergraduate','Postgraduate','Professional (CA/CS)','Study abroad']},
+  od_limit:{label:'OD purpose',opts:['Working capital','Trade finance','Business expansion','Emergency fund']},
+  cc_limit:{label:'Card type',opts:['Standard','Gold','Platinum','Corporate']},
+  new_car:{label:'Car segment',opts:['Hatchback','Sedan','SUV','MUV / MPV','Luxury']},
+  used_car:{label:'Vehicle age',opts:['Less than 1 year','1–3 years','3–5 years','5–7 years']}
+};
+const pName={home_loan:'Home Loan',lap:'Loan Against Property',business_loan:'Business Loan',education_loan:'Education Loan',od_limit:'OD Limit',cc_limit:'CC Limit',new_car:'New Car Loan',used_car:'Used Car Loan'};
+
+function g(id){return document.getElementById(id);}
+function err(id,msg){const e=g(id);e.textContent=msg;e.style.display=msg?'block':'none';}
+function setProgress(s){
+  [['dot-1',s>=1],['dot-2',s>=2],['dot-3',s>=3]].forEach(([id,on])=>{
+    const d=g(id);d.style.width=on?'24px':'8px';d.style.background=on?'#1D9E75':'#ddd';
+  });
+  g('step-label').textContent=['','Step 1 of 2','Step 2 of 2','Complete ✓'][s]||'';
+}
+
+async function api(body) {
+  const res = await fetch('/.netlify/functions/otp', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+async function sendOTP1(){
+  const n=g('name').value.trim(), m=g('mobile').value.trim();
+  if(!n){err('err1','Please enter your full name.');return;}
+  if(!/^\d{10}$/.test(m)){err('err1','Enter a valid 10-digit mobile number.');return;}
+  err('err1','');
+  g('btn-otp1').disabled=true; g('sending1').style.display='block';
+  try {
+    const data = await api({action:'send', mobile:m});
+    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+      g('mob-show').textContent=m;
+      g('otp1-box').classList.remove('hidden');
+      g('btn-otp1').textContent='Resend OTP';
+    } else {
+      err('err1', data.message||data.error||'Failed to send OTP. Check MSG91 balance.');
+    }
+  } catch(e){ err('err1','Server error. Please try again.'); }
+  g('btn-otp1').disabled=false; g('sending1').style.display='none';
+}
+
+async function verifyOTP1(){
+  const otp=g('otp1-in').value.trim(), m=g('mobile').value.trim();
+  if(!otp||otp.length!==6){err('err1','Enter a valid 6-digit OTP.');return;}
+  g('btn-verify1').disabled=true; g('btn-verify1').textContent='Verifying...';
+  try {
+    const data = await api({action:'verify', mobile:m, otp});
+    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+      uName=g('name').value.trim(); uMob=m;
+      g('step1').style.display='none'; g('step2').style.display='block';
+      g('mob-fill').value=uMob; err('err1',''); setProgress(2);
+    } else {
+      err('err1', data.message||'Wrong OTP. Please try again.');
+    }
+  } catch(e){ err('err1','Server error. Please try again.'); }
+  g('btn-verify1').disabled=false; g('btn-verify1').textContent='Verify & next';
+}
+
+function onProduct(){
+  const v=g('product').value, w=g('sub-wrap');
+  if(!v||!sub[v]){w.classList.add('hidden');return;}
+  const d=sub[v];
+  w.innerHTML=`<div class="field"><label>${d.label}</label><select id="sub-sel"><option value="">Select ${d.label.toLowerCase()}</option>${d.opts.map(o=>`<option value="${o}">${o}</option>`).join('')}</select></div>`;
+  w.classList.remove('hidden');
+}
+
+async function sendOTP2(){
+  const p=g('product').value, a=g('amount').value;
+  if(!p){err('err2','Please select a product type.');return;}
+  if(!a||Number(a)<=0){err('err2','Please enter a valid loan amount.');return;}
+  err('err2','');
+  g('btn-otp2').disabled=true; g('sending2').style.display='block';
+  try {
+    const data = await api({action:'send', mobile:uMob});
+    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+      g('otp2-box').classList.remove('hidden');
+      g('btn-otp2').textContent='Resend OTP';
+    } else {
+      err('err2', data.message||data.error||'Failed to send OTP.');
+    }
+  } catch(e){ err('err2','Server error. Please try again.'); }
+  g('btn-otp2').disabled=false; g('sending2').style.display='none';
+}
+
+async function doSubmit(){
+  const otp=g('otp2-in').value.trim();
+  if(!otp||otp.length!==6){err('err2','Enter a valid 6-digit OTP.');return;}
+  const submitBtn=document.querySelector('#step2 .btn-full');
+  submitBtn.disabled=true; submitBtn.textContent='Verifying...';
+  try {
+    const data = await api({action:'verify', mobile:uMob, otp});
+    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+      const p=g('product').value, a=g('amount').value;
+      const ss=g('sub-sel'), sv=ss?.value||'', sl=sub[p]?.label||'';
+      g('step2').style.display='none'; g('success-screen').style.display='block'; setProgress(3);
+      const rows=[['Name',uName],['Mobile',uMob],['Product',pName[p]||p],sl&&sv?[sl,sv]:null,['Loan amount','₹'+Number(a).toLocaleString('en-IN')]].filter(Boolean);
+      g('summary').innerHTML=rows.map(([l,v])=>`<div class="sum-row"><span class="sum-label">${l}</span><span class="sum-val">${v}</span></div>`).join('');
+    } else {
+      err('err2', data.message||'Wrong OTP. Please try again.');
+      submitBtn.disabled=false; submitBtn.textContent='✓ Submit application';
+    }
+  } catch(e){
+    err('err2','Server error. Please try again.');
+    submitBtn.disabled=false; submitBtn.textContent='✓ Submit application';
+  }
+}
+
+function resetForm(){
+  ['step2','success-screen'].forEach(id=>g(id).style.display='none');
+  g('step1').style.display='block';
+  ['name','mobile','otp1-in','amount','otp2-in'].forEach(id=>g(id).value='');
+  g('otp1-box').classList.add('hidden'); g('otp2-box').classList.add('hidden'); g('sub-wrap').classList.add('hidden');
+  g('product').value=''; g('btn-otp1').textContent='Send OTP'; g('btn-otp2').textContent='Send OTP';
+  uName=uMob=null; setProgress(1);
+}
+window.onload=()=>setProgress(1);
+</script>
+</body>
+</html>
