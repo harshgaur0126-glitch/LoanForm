@@ -161,12 +161,12 @@ async function sendOTP1(){
   g('btn-otp1').disabled=true; g('sending1').style.display='block';
   try {
     const data = await api({action:'send', mobile:m});
-    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+    if(data.type==='success'||data.message==='success'){
       g('mob-show').textContent=m;
       g('otp1-box').classList.remove('hidden');
       g('btn-otp1').textContent='Resend OTP';
     } else {
-      err('err1', data.message||data.error||'Failed to send OTP. Check MSG91 balance.');
+      err('err1', data.message||data.error||JSON.stringify(data));
     }
   } catch(e){ err('err1','Server error. Please try again.'); }
   g('btn-otp1').disabled=false; g('sending1').style.display='none';
@@ -178,7 +178,7 @@ async function verifyOTP1(){
   g('btn-verify1').disabled=true; g('btn-verify1').textContent='Verifying...';
   try {
     const data = await api({action:'verify', mobile:m, otp});
-    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+    if(data.type==='success'||data.message==='success'){
       uName=g('name').value.trim(); uMob=m;
       g('step1').style.display='none'; g('step2').style.display='block';
       g('mob-fill').value=uMob; err('err1',''); setProgress(2);
@@ -205,11 +205,11 @@ async function sendOTP2(){
   g('btn-otp2').disabled=true; g('sending2').style.display='block';
   try {
     const data = await api({action:'send', mobile:uMob});
-    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+    if(data.type==='success'||data.message==='success'){
       g('otp2-box').classList.remove('hidden');
       g('btn-otp2').textContent='Resend OTP';
     } else {
-      err('err2', data.message||data.error||'Failed to send OTP.');
+      err('err2', data.message||data.error||JSON.stringify(data));
     }
   } catch(e){ err('err2','Server error. Please try again.'); }
   g('btn-otp2').disabled=false; g('sending2').style.display='none';
@@ -222,7 +222,7 @@ async function doSubmit(){
   submitBtn.disabled=true; submitBtn.textContent='Verifying...';
   try {
     const data = await api({action:'verify', mobile:uMob, otp});
-    if(data.type==='success'||data.message==='success'||data.status==='success'||data.data){
+    if(data.type==='success'||data.message==='success'){
       const p=g('product').value, a=g('amount').value;
       const ss=g('sub-sel'), sv=ss?.value||'', sl=sub[p]?.label||'';
       g('step2').style.display='none'; g('success-screen').style.display='block'; setProgress(3);
